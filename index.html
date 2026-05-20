@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notitanic — Gleb Kostrubov</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1a1e;
+    --bg2: #222228;
+    --bg3: #2a2a32;
+    --card: #272730;
+    --cyan: #00c8e0;
+    --cyan2: #00a8c0;
+    --gold: #f0a500;
+    --white: #f0f0f8;
+    --grey: #8888a0;
+    --radius: 18px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Exo 2', sans-serif;
+    overflow-x: hidden;
+  }
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 3px; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 60px;
+    background: rgba(26,26,30,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(0,200,224,0.08);
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Rajdhani', sans-serif; font-size: 1.3rem; font-weight: 700;
+    color: var(--white); text-decoration: none; letter-spacing: 1px;
+  }
+  .logo svg { width: 34px; height: 34px; }
+  .nav-links { display: flex; gap: 40px; list-style: none; }
+  .nav-links a {
+    color: var(--grey); text-decoration: none; font-size: .9rem;
+    font-weight: 600; letter-spacing: .5px; transition: color .2s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+    height: 2px; background: var(--cyan); transform: scaleX(0);
+    transition: transform .25s;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--white); }
+  .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+
+  /* ─── HERO ─── */
+  #home {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    background: linear-gradient(135deg, #18181d 0%, #1e2030 50%, #1a1a22 100%);
+    position: relative; overflow: hidden;
+    padding-top: 70px;
+  }
+  .hero-glow {
+    position: absolute; right: 15%; top: 50%; transform: translateY(-50%);
+    width: 420px; height: 420px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,200,224,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-ring {
+    position: absolute; right: 15%; top: 50%; transform: translate(50%, -50%);
+    width: 380px; height: 380px; border-radius: 50%;
+    border: 3px solid var(--cyan);
+    opacity: .15; animation: spin 18s linear infinite;
+  }
+  @keyframes spin { to { transform: translate(50%,-50%) rotate(360deg); } }
+  .hero-content { max-width: 1200px; margin: 0 auto; padding: 0 60px; display: flex; align-items: center; justify-content: space-between; width: 100%; }
+  .hero-text { max-width: 460px; animation: fadeUp .8s ease both; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:none; } }
+  .hero-text .hello { font-size: 1.4rem; font-weight: 300; color: var(--grey); letter-spacing: 4px; margin-bottom: 6px; }
+  .hero-text h1 { font-size: clamp(2.6rem, 5vw, 4rem); font-weight: 900; line-height: 1; letter-spacing: -1px; margin-bottom: 18px; }
+  .hero-text h1 span { color: var(--cyan); }
+  .hero-text p { color: var(--grey); font-size: .95rem; line-height: 1.7; margin-bottom: 32px; max-width: 360px; }
+  .btn-primary {
+    display: inline-block; padding: 13px 32px;
+    background: var(--gold); color: #111; font-weight: 800;
+    font-size: .85rem; letter-spacing: 2px; text-transform: uppercase;
+    text-decoration: none; border-radius: 6px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(240,165,0,.35); }
+
+  /* Hero avatar area */
+  .hero-avatar {
+    position: relative; width: 380px; height: 380px;
+    flex-shrink: 0; animation: fadeUp .9s .15s ease both;
+  }
+  .avatar-circle {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, #00c8e0 0%, #005060 60%, transparent 90%);
+    opacity: .25;
+  }
+  .avatar-circle-border {
+    position: absolute; inset: 8px; border-radius: 50%;
+    border: 2.5px solid var(--cyan); opacity: .5;
+  }
+  .hero-img {
+    width: 100%; height: 100%; object-fit: cover;
+    border-radius: 50%; position: relative; z-index: 1;
+    filter: drop-shadow(0 0 40px rgba(0,200,224,.25));
+  }
+  .skill-badge {
+    position: absolute; background: var(--card); border: 1.5px solid rgba(0,200,224,.3);
+    color: var(--cyan); font-weight: 700; font-size: .85rem;
+    padding: 8px 16px; border-radius: 50px; z-index: 2;
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    animation: float 4s ease-in-out infinite;
+  }
+  .skill-badge.b1 { top: 12%; right: -5%; animation-delay: 0s; }
+  .skill-badge.b2 { top: 40%; left: -8%; animation-delay: 1s; }
+  .skill-badge.b3 { bottom: 20%; left: 0%; animation-delay: 2s; }
+  @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
+
+  /* ─── SKILLS SECTION ─── */
+  #skills { background: var(--bg2); padding: 80px 60px; }
+  .skills-grid {
+    max-width: 900px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+  }
+  .skill-card {
+    background: var(--card); border-radius: var(--radius);
+    padding: 36px 20px; text-align: center;
+    border: 1px solid rgba(255,255,255,.05);
+    transition: transform .25s, border-color .25s, box-shadow .25s;
+    cursor: default;
+  }
+  .skill-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(0,200,224,.3);
+    box-shadow: 0 12px 36px rgba(0,200,224,.1);
+  }
+  .skill-icon { font-size: 2rem; margin-bottom: 14px; }
+  .skill-card p { color: var(--grey); font-size: .85rem; font-weight: 600; letter-spacing: .5px; }
+  /* second row centered */
+  .skills-row2 {
+    max-width: 680px; margin: 20px auto 0;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+
+  /* ─── ABOUT ─── */
+  #about {
+    background: var(--bg);
+    padding: 100px 60px;
+    position: relative; overflow: hidden;
+  }
+  .about-decor {
+    position: absolute; left: -120px; top: 50%; transform: translateY(-50%);
+    width: 400px; height: 400px; border-radius: 50%;
+    border: 60px solid rgba(255,255,255,.04);
+  }
+  .about-decor2 {
+    position: absolute; right: -80px; bottom: -80px;
+    width: 280px; height: 280px; border-radius: 50%;
+    border: 40px solid rgba(0,200,224,.07);
+  }
+  .about-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; align-items: center;
+  }
+  .about-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position: relative; }
+  .about-photo {
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  }
+  .about-photo img { width: 100%; height: 180px; object-fit: cover; display: block; }
+  .about-photo.tall img { height: 240px; }
+  .about-text h2 {
+    font-size: clamp(2rem, 3vw, 2.8rem); font-weight: 900;
+    letter-spacing: 2px; margin-bottom: 24px;
+  }
+  .about-text p { color: var(--grey); font-size: .93rem; line-height: 1.8; }
+
+  /* ─── PORTFOLIO ─── */
+  #portfolio {
+    background: var(--bg2);
+    padding: 100px 60px;
+  }
+  .section-title {
+    text-align: center; font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 900; letter-spacing: 4px; margin-bottom: 60px;
+  }
+  .portfolio-slider { position: relative; max-width: 900px; margin: 0 auto; }
+  .portfolio-card {
+    background: var(--card); border-radius: 20px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  }
+  .portfolio-preview {
+    background: #111; overflow: hidden;
+    max-height: 320px;
+  }
+  .portfolio-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .portfolio-info { padding: 40px 36px; }
+  .portfolio-info h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; }
+  .portfolio-info p { color: var(--grey); font-size: .87rem; line-height: 1.75; }
+  .more-link {
+    display: inline-block; margin-top: 20px;
+    color: var(--gold); font-weight: 700; font-size: .9rem;
+    text-decoration: none; letter-spacing: .5px;
+    transition: gap .2s;
+  }
+  .more-link:hover { text-decoration: underline; }
+  .slider-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--card); border: 1.5px solid rgba(0,200,224,.3);
+    color: var(--cyan); font-size: 1.1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, transform .2s;
+  }
+  .slider-btn:hover { background: var(--cyan); color: #111; transform: translateY(-50%) scale(1.08); }
+  .slider-btn.prev { left: -70px; }
+  .slider-btn.next { right: -70px; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: #111115;
+    padding: 60px;
+    border-top: 1px solid rgba(255,255,255,.05);
+  }
+  .footer-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px;
+    align-items: start;
+  }
+  .footer-nav h4, .footer-contact h4 { color: var(--grey); font-size: .8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 18px; }
+  .footer-nav ul { list-style: none; }
+  .footer-nav ul li { margin-bottom: 10px; }
+  .footer-nav ul a { color: var(--grey); text-decoration: none; font-size: .9rem; transition: color .2s; }
+  .footer-nav ul a:hover { color: var(--white); }
+  .footer-contact p { color: var(--grey); font-size: .88rem; margin-bottom: 8px; }
+  .footer-brand { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .footer-brand .logo { font-size: 1.1rem; }
+  .up-btn {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: var(--gold); border: none; cursor: pointer;
+    color: #111; font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .2s; text-decoration: none;
+  }
+  .up-btn:hover { transform: translateY(-4px); }
+  .copyright { color: var(--grey); font-size: .78rem; margin-top: 40px; text-align: center; }
+
+  /* Responsive */
+  @media (max-width: 800px) {
+    nav { padding: 16px 24px; }
+    .nav-links { gap: 20px; }
+    .hero-content { flex-direction: column; padding: 80px 24px 40px; gap: 40px; }
+    .hero-avatar { width: 280px; height: 280px; }
+    #skills { padding: 60px 24px; }
+    .skills-grid { grid-template-columns: repeat(2,1fr); }
+    .skills-row2 { grid-template-columns: repeat(2,1fr); max-width: 100%; }
+    #about { padding: 60px 24px; }
+    .about-inner { grid-template-columns: 1fr; }
+    #portfolio { padding: 60px 24px; }
+    .portfolio-card { grid-template-columns: 1fr; }
+    .slider-btn.prev { left: 0; }
+    .slider-btn.next { right: 0; }
+    footer { padding: 40px 24px; }
+    .footer-inner { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#home" class="logo">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="20,4 36,14 36,30 20,38 4,30 4,14" stroke="#00c8e0" stroke-width="2.5" fill="none"/>
+      <polygon points="20,10 30,16 30,28 20,34 10,28 10,16" stroke="#00c8e0" stroke-width="1.5" fill="rgba(0,200,224,0.08)"/>
+    </svg>
+    Notitanic
+  </a>
+  <ul class="nav-links">
+    <li><a href="#home" class="active">Home</a></li>
+    <li><a href="#about">About me</a></li>
+    <li><a href="#portfolio">Portfolio</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="home">
+  <div class="hero-glow"></div>
+  <div class="hero-ring"></div>
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hello">HELLO</div>
+      <h1>I'M GLEB<br><span>KOSTRUBOV</span></h1>
+      <p>I've been doing web design, front-end and back-end development for a year now. Do you need a website design, site layout, or maybe a turnkey website? Then contact me.</p>
+      <a href="#contact" class="btn-primary">CONTACT ME</a>
+    </div>
+    <div class="hero-avatar">
+      <div class="avatar-circle"></div>
+      <div class="avatar-circle-border"></div>
+      <img class="hero-img"
+        src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=500&h=500&fit=crop&crop=face"
+        alt="Gleb avatar"
+        onerror="this.src='https://ui-avatars.com/api/?name=Gleb+K&size=500&background=1a2a3a&color=00c8e0&bold=true&font-size=0.4'"
+      >
+      <div class="skill-badge b1">UI</div>
+      <div class="skill-badge b2">UX</div>
+      <div class="skill-badge b3">PS</div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M20 8L10 14v12l10 6 10-6V14L20 8z" stroke="#00c8e0" stroke-width="2" fill="rgba(0,200,224,0.08)"/><line x1="20" y1="8" x2="20" y2="20" stroke="#00c8e0" stroke-width="1.5"/></svg>
+      </div>
+      <p>Product Design</p>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon" style="color:#00c8e0;font-weight:900;font-size:1.4rem;font-family:'Rajdhani',sans-serif;">UX/UI</div>
+      <p>UX/UI Design</p>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="8" y="8" width="24" height="6" rx="2" fill="rgba(0,200,224,0.15)" stroke="#00c8e0" stroke-width="1.5"/><rect x="8" y="17" width="24" height="6" rx="2" fill="rgba(0,200,224,0.15)" stroke="#00c8e0" stroke-width="1.5"/><rect x="8" y="26" width="24" height="6" rx="2" fill="rgba(0,200,224,0.15)" stroke="#00c8e0" stroke-width="1.5"/></svg>
+      </div>
+      <p>Icon Design</p>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="8" y="18" width="10" height="10" rx="2" fill="rgba(0,200,224,0.2)" stroke="#00c8e0" stroke-width="1.5"/><rect x="22" y="12" width="10" height="10" rx="2" fill="rgba(0,200,224,0.1)" stroke="#00c8e0" stroke-width="1.5"/><rect x="22" y="24" width="10" height="8" rx="2" fill="rgba(0,200,224,0.08)" stroke="#00c8e0" stroke-width="1.5"/></svg>
+      </div>
+      <p>Logo Design</p>
+    </div>
+  </div>
+  <div class="skills-row2">
+    <div class="skill-card">
+      <div class="skill-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><text x="6" y="28" font-size="18" font-family="monospace" fill="#00c8e0">&lt;/&gt;</text></svg>
+      </div>
+      <p>Backend</p>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="6" y="10" width="28" height="18" rx="3" stroke="#00c8e0" stroke-width="1.8" fill="rgba(0,200,224,0.07)"/><line x1="14" y1="28" x2="14" y2="33" stroke="#00c8e0" stroke-width="1.8"/><line x1="26" y1="28" x2="26" y2="33" stroke="#00c8e0" stroke-width="1.8"/><line x1="10" y1="33" x2="30" y2="33" stroke="#00c8e0" stroke-width="1.8"/></svg>
+      </div>
+      <p>Frontend</p>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect x="8" y="8" width="11" height="11" rx="2" fill="rgba(0,200,224,0.2)" stroke="#00c8e0" stroke-width="1.5"/><rect x="21" y="8" width="11" height="11" rx="2" fill="rgba(0,200,224,0.12)" stroke="#00c8e0" stroke-width="1.5"/><rect x="8" y="21" width="11" height="11" rx="2" fill="rgba(0,200,224,0.12)" stroke="#00c8e0" stroke-width="1.5"/><rect x="21" y="21" width="11" height="11" rx="2" fill="rgba(0,200,224,0.06)" stroke="#00c8e0" stroke-width="1.5"/></svg>
+      </div>
+      <p>Motion</p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-decor"></div>
+  <div class="about-decor2"></div>
+  <div class="about-inner">
+    <div class="about-photos">
+      <div class="about-photo tall">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop&crop=face" alt="Gleb photo 1"
+          onerror="this.src='https://via.placeholder.com/300x400/1a2a3a/00c8e0?text=Photo'">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="about-photo">
+          <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=280&h=180&fit=crop&crop=face" alt="Gleb photo 2"
+            onerror="this.src='https://via.placeholder.com/280x180/1a2a3a/00c8e0?text=Photo'">
+        </div>
+        <div class="about-photo">
+          <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=280&h=180&fit=crop&crop=face" alt="Gleb photo 3"
+            onerror="this.src='https://via.placeholder.com/280x180/1a2a3a/00c8e0?text=Photo'">
+        </div>
+      </div>
+    </div>
+    <div class="about-text">
+      <h2>ABOUT ME</h2>
+      <p>Hello again everyone! So, you already know that my name is Gleb. A little about myself: student, 18 y.o., athlete-football player, I love creativity since childhood. I live in Donetsk, Ukraine.</p>
+      <br>
+      <p>Why programming? Everything is elementary — I like it, the profession of the future, thanks to which I can provide myself and fulfill my dream — travel; at the moment I specialize in web design, front-end and back-end development, turnkey websites.</p>
+      <br>
+      <p>Why should you choose me? I approach each order with great responsibility and love, as I want to make a name for myself, exclude plagiarism and negligence, fully study the project, the client and its target audience, work for quality, trying to make an order as quickly and uniquely as possible, taking into account all the edits and wishes.</p>
+      <br>
+      <p>By trusting me, you will get the maximum return for your project, save your nerves and time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <h2 class="section-title">PORTFOLIO</h2>
+  <div class="portfolio-slider">
+    <button class="slider-btn prev" onclick="slide(-1)">&#8592;</button>
+    <div id="portfolio-track">
+      <div class="portfolio-card">
+        <div class="portfolio-preview">
+          <img
+            src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&h=400&fit=crop"
+            alt="Landing Ice-cream"
+            onerror="this.src='https://via.placeholder.com/600x400/111/00c8e0?text=Project'"
+          >
+        </div>
+        <div class="portfolio-info">
+          <h3>Landing Ice-cream</h3>
+          <p>A vibrant, space-themed landing page for an artisan ice cream brand. The design blends cosmic aesthetics with bold typography and an otherworldly color palette to create a memorable, immersive product experience that converts visitors into customers.</p>
+          <a href="#" class="more-link">More →</a>
+        </div>
+      </div>
+    </div>
+    <button class="slider-btn next" onclick="slide(1)">&#8594;</button>
+  </div>
+</section>
+
+<!-- FOOTER / CONTACT -->
+<footer id="contact">
+  <div class="footer-inner">
+    <div class="footer-nav">
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About me</a></li>
+        <li><a href="#portfolio">Portfolio</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-contact">
+      <h4>Contact</h4>
+      <p>Email: notitanic33@gmail.com</p>
+      <p>Inst: notitanic33</p>
+      <p>Calls: +7 (900) - 121 - 54 - 54</p>
+    </div>
+    <div class="footer-brand">
+      <a href="#home" class="logo">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" width="34" height="34">
+          <polygon points="20,4 36,14 36,30 20,38 4,30 4,14" stroke="#00c8e0" stroke-width="2.5" fill="none"/>
+          <polygon points="20,10 30,16 30,28 20,34 10,28 10,16" stroke="#00c8e0" stroke-width="1.5" fill="rgba(0,200,224,0.08)"/>
+        </svg>
+        Notitanic
+      </a>
+      <a href="#home" class="up-btn">↑</a>
+    </div>
+  </div>
+  <p class="copyright">Copyright © 2021 Notitanic</p>
+</footer>
+
+<script>
+  // Smooth active nav link
+  const sections = document.querySelectorAll('section[id], footer[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.getAttribute('id'); });
+    navLinks.forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+    });
+  });
+
+  // Portfolio slider
+  const projects = [
+    {
+      img: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&h=400&fit=crop",
+      title: "Landing Ice-cream",
+      desc: "A vibrant, space-themed landing page for an artisan ice cream brand. The design blends cosmic aesthetics with bold typography and an otherworldly color palette to create a memorable, immersive product experience.",
+    },
+    {
+      img: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=600&h=400&fit=crop",
+      title: "Web Design Project",
+      desc: "Full-cycle web design including wireframes, UI kit, and pixel-perfect implementation. Focused on user experience and conversion optimization across all device sizes.",
+    },
+    {
+      img: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=600&h=400&fit=crop",
+      title: "Brand Identity",
+      desc: "Complete brand identity design: logo, color system, typography, and brand guidelines. Created for a modern tech startup aiming for a clean, trustworthy visual presence.",
+    }
+  ];
+  let current = 0;
+  function slide(dir) {
+    current = (current + dir + projects.length) % projects.length;
+    const p = projects[current];
+    const track = document.getElementById('portfolio-track');
+    track.style.opacity = '0';
+    track.style.transform = 'translateX(' + (dir > 0 ? '30px' : '-30px') + ')';
+    setTimeout(() => {
+      track.innerHTML = `
+        <div class="portfolio-card">
+          <div class="portfolio-preview">
+            <img src="${p.img}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/600x400/111/00c8e0?text=Project'">
+          </div>
+          <div class="portfolio-info">
+            <h3>${p.title}</h3>
+            <p>${p.desc}</p>
+            <a href="#" class="more-link">More →</a>
+          </div>
+        </div>`;
+      track.style.opacity = '1';
+      track.style.transform = 'translateX(0)';
+    }, 200);
+  }
+  document.getElementById('portfolio-track').style.transition = 'opacity .2s, transform .2s';
+</script>
+</body>
+</html>
